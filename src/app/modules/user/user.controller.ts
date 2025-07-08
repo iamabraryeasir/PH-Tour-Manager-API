@@ -1,7 +1,7 @@
 /**
  * Node Modules
  */
-import { Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import httpStatusCodes from 'http-status-codes';
 
 /**
@@ -12,7 +12,7 @@ import { UserServices } from './user.service';
 /**
  * User Controllers
  */
-const createUser = async (req: Request, res: Response) => {
+const createUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const user = await UserServices.createUser(req.body);
 
@@ -23,10 +23,7 @@ const createUser = async (req: Request, res: Response) => {
   } catch (error) {
     // eslint-disable-next-line no-console
     console.log(error);
-    res.status(httpStatusCodes.BAD_REQUEST).json({
-      message: 'Something went wrong!!',
-      error,
-    });
+    next(error);
   }
 };
 
