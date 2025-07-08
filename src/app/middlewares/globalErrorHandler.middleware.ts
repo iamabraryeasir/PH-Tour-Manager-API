@@ -9,6 +9,7 @@ import { NextFunction, Request, Response } from 'express';
  * Local Modules
  */
 import config from '../config';
+import { AppError } from '../errorHelpers/AppError';
 
 /**
  * Middleware Logic
@@ -19,8 +20,15 @@ export const globalErrorHandler = (
   res: Response,
   next: NextFunction
 ) => {
-  const statusCode = 500;
-  const message = error?.message || 'Something went wrong';
+  let statusCode = 500;
+  let message = error?.message || 'Something went wrong';
+
+  if (error instanceof AppError) {
+    statusCode = error.statusCode;
+    message = error.message;
+  } else if (error instanceof Error) {
+    message = error.message;
+  }
 
   res.status(statusCode).json({
     success: false,
