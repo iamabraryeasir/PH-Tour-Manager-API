@@ -10,6 +10,8 @@ import httpStatusCodes from 'http-status-codes';
  */
 import { UserServices } from './user.service';
 import { catchAsync } from '../../utils/catchAsync';
+import { sendResponse } from '../../utils/sendResponse';
+import { IUser } from './user.interface';
 
 /**
  * User Controllers
@@ -18,9 +20,9 @@ const createUser = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const user = await UserServices.createUser(req.body);
 
-    res.status(httpStatusCodes.CREATED).json({
-      success: true,
-      message: 'User created successfully',
+    sendResponse(res, {
+      statusCode: httpStatusCodes.CREATED,
+      message: 'User created successful',
       data: user,
     });
   }
@@ -28,12 +30,13 @@ const createUser = catchAsync(
 
 const getAllUsers = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const users = await UserServices.getAllUsers();
+    const result = await UserServices.getAllUsers();
 
-    res.status(httpStatusCodes.OK).json({
-      success: true,
+    sendResponse<IUser[]>(res, {
+      statusCode: httpStatusCodes.OK,
       message: 'Successfully fetched all users',
-      data: users,
+      data: result.data,
+      meta: result.meta,
     });
   }
 );
