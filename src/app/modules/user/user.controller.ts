@@ -17,8 +17,9 @@ const createUser = async (req: Request, res: Response, next: NextFunction) => {
     const user = await UserServices.createUser(req.body);
 
     res.status(httpStatusCodes.CREATED).json({
+      success: true,
       message: 'User created successfully',
-      user,
+      data: user,
     });
   } catch (error) {
     // eslint-disable-next-line no-console
@@ -27,6 +28,21 @@ const createUser = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
+const getAllUsers = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const users = await UserServices.getAllUsers();
+
+    res.status(httpStatusCodes.OK).json({
+      success: true,
+      message: 'Successfully fetched all users',
+      data: users,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const UserController = {
   createUser,
+  getAllUsers,
 };

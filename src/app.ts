@@ -28,7 +28,7 @@ app.use(express.urlencoded({ extended: true }));
 /**
  * Home Route
  */
-app.use('/', (req: Request, res: Response) => {
+app.get('/', (req: Request, res: Response) => {
   res.status(httpStatusCodes.OK).json({
     success: true,
     message: 'Welcome to PH Tour Management API',
