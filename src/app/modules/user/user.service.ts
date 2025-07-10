@@ -2,9 +2,9 @@ import { IUser } from './user.interface';
 import { User } from './user.model';
 
 const createUser = async (payload: Partial<IUser>) => {
-  const { name, email } = payload;
+  const { name, email, password } = payload;
 
-  const newUser = await User.create({ name, email });
+  const newUser = await User.create({ name, email, password });
 
   return newUser;
 };
