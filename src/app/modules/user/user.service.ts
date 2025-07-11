@@ -10,6 +10,7 @@ import bcrypt from 'bcryptjs';
 import { AppError } from '../../errorHelpers/AppError';
 import { IAuthProvider, IUser } from './user.interface';
 import { User } from './user.model';
+import config from '../../config';
 
 /**
  * Create new user service logics
@@ -25,7 +26,10 @@ const createUser = async (payload: Partial<IUser>) => {
   }
 
   // hashing the password
-  const hashedPassword = await bcrypt.hash(password as string, 10);
+  const hashedPassword = await bcrypt.hash(
+    password as string,
+    parseInt(config.bcryptSaltRound)
+  );
 
   // creating the auth provider for email and pass
   const authProvider: IAuthProvider = {

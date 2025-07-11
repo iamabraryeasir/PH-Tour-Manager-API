@@ -5,6 +5,8 @@ interface EnvConfig {
   port: string;
   mongoUri: string;
   jwtAccessSecret: string;
+  jwtAccessExpire: string;
+  bcryptSaltRound: string;
 }
 
 const loadConfigVariable = (): EnvConfig => {
@@ -13,6 +15,8 @@ const loadConfigVariable = (): EnvConfig => {
     'PORT',
     'MONGO_URI',
     'JWT_ACCESS_SECRET',
+    'JWT_ACCESS_EXPIRE',
+    'BCRYPT_SALT_ROUND',
   ];
 
   requiredEnvVariable.forEach((key) => {
@@ -26,6 +30,8 @@ const loadConfigVariable = (): EnvConfig => {
     port: process.env.PORT as string,
     mongoUri: process.env.MONGO_URI as string,
     jwtAccessSecret: process.env.JWT_ACCESS_SECRET as string,
+    jwtAccessExpire: process.env.JWT_ACCESS_EXPIRE as string,
+    bcryptSaltRound: process.env.BCRYPT_SALT_ROUND as string,
   };
 };
 

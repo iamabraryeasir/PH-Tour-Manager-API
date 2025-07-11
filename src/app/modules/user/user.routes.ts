@@ -3,10 +3,12 @@
  */
 import { Router } from 'express';
 
-/**
+/*
  * Local Modules
  */
+import { Role } from './user.interface';
 import { UserController } from './user.controller';
+import { catchAuth } from '../../middlewares/checkAuth.middleware';
 import { createUserZodSchema, updateUserZodSchema } from './user.validation';
 import { validateRequest } from '../../middlewares/validateRequest.middleware';
 
@@ -15,9 +17,13 @@ import { validateRequest } from '../../middlewares/validateRequest.middleware';
  */
 const router = Router();
 
-router.get('/', UserController.getAllUsers);
+router.get(
+  '/all-users',
+  catchAuth(Role.ADMIN, Role.SUPER_ADMIN),
+  UserController.getAllUsers
+);
 router.post(
-  '/',
+  '/register',
   validateRequest(createUserZodSchema),
   UserController.createUser
 );
