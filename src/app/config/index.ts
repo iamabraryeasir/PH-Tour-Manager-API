@@ -6,7 +6,9 @@ interface EnvConfig {
   mongoUri: string;
   jwtAccessSecret: string;
   jwtAccessExpire: string;
-  bcryptSaltRound: string;
+  bcryptSaltRound: number;
+  superAdminEmail: string;
+  superAdminPassword: string;
 }
 
 const loadConfigVariable = (): EnvConfig => {
@@ -17,6 +19,8 @@ const loadConfigVariable = (): EnvConfig => {
     'JWT_ACCESS_SECRET',
     'JWT_ACCESS_EXPIRE',
     'BCRYPT_SALT_ROUND',
+    'SUPER_ADMIN_EMAIL',
+    'SUPER_ADMIN_PASSWORD',
   ];
 
   requiredEnvVariable.forEach((key) => {
@@ -31,7 +35,9 @@ const loadConfigVariable = (): EnvConfig => {
     mongoUri: process.env.MONGO_URI as string,
     jwtAccessSecret: process.env.JWT_ACCESS_SECRET as string,
     jwtAccessExpire: process.env.JWT_ACCESS_EXPIRE as string,
-    bcryptSaltRound: process.env.BCRYPT_SALT_ROUND as string,
+    bcryptSaltRound: parseInt(process.env.BCRYPT_SALT_ROUND as string),
+    superAdminEmail: process.env.SUPER_ADMIN_EMAIL as string,
+    superAdminPassword: process.env.SUPER_ADMIN_PASSWORD as string,
   };
 };
 

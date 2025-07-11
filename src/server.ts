@@ -10,6 +10,7 @@ import mongoose from 'mongoose';
  */
 import app from './app';
 import config from './app/config';
+import { seedSuperAdmin } from './app/utils/seedSuperAdmin';
 
 let server: Server;
 
@@ -29,7 +30,14 @@ async function startServer() {
     console.log(error);
   }
 }
-startServer();
+
+/**
+ * Running Server
+ */
+(async () => {
+  await startServer();
+  await seedSuperAdmin();
+})();
 
 /**
  * Server Safe Shutdown
