@@ -14,7 +14,7 @@ import { sendResponse } from '../../utils/sendResponse';
 import { IUser } from './user.interface';
 
 /**
- * User Controllers
+ * Create user controllers
  */
 const createUser = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -23,11 +23,17 @@ const createUser = catchAsync(
     sendResponse(res, {
       statusCode: httpStatusCodes.CREATED,
       message: 'User created successful',
-      data: user,
+      data: {
+        name: user.name,
+        email: user.email,
+      },
     });
   }
 );
 
+/**
+ * Get all user controller
+ */
 const getAllUsers = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const result = await UserServices.getAllUsers();
@@ -41,7 +47,21 @@ const getAllUsers = catchAsync(
   }
 );
 
+/**
+ * Update user controller
+ */
+const updateUser = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    sendResponse(res, {
+      statusCode: httpStatusCodes.CREATED,
+      message: 'user updated successfully',
+      data: {},
+    });
+  }
+);
+
 export const UserController = {
   createUser,
   getAllUsers,
+  updateUser,
 };

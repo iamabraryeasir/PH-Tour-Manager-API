@@ -7,7 +7,7 @@ import { Router } from 'express';
  * Local Modules
  */
 import { UserController } from './user.controller';
-import { createUserZodSchema } from './user.validation';
+import { createUserZodSchema, updateUserZodSchema } from './user.validation';
 import { validateRequest } from '../../middlewares/validateRequest.middleware';
 
 /**
@@ -17,9 +17,14 @@ const router = Router();
 
 router.get('/', UserController.getAllUsers);
 router.post(
-  '/register',
+  '/',
   validateRequest(createUserZodSchema),
   UserController.createUser
+);
+router.put(
+  '/',
+  validateRequest(updateUserZodSchema),
+  UserController.updateUser
 );
 
 export const UserRoutes = router;
