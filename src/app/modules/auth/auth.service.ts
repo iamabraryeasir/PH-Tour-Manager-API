@@ -3,6 +3,7 @@
  */
 import bcryptjs from 'bcryptjs';
 import httpStatusCodes from 'http-status-codes';
+import jwt from 'jsonwebtoken';
 
 /**
  * Local Modules
@@ -10,6 +11,7 @@ import httpStatusCodes from 'http-status-codes';
 import { AppError } from '../../errorHelpers/AppError';
 import { IUser } from '../user/user.interface';
 import { User } from '../user/user.model';
+import config from '../../config';
 
 /**
  * Credentials login service logic
@@ -38,8 +40,20 @@ const credentialsLogin = async (payload: Partial<IUser>) => {
     );
   }
 
+  // generate access token
+  const jwtPayload = {
+    userId: foundUser._id,
+    email: foundUser.email,
+    role: foundUser.role,
+  };
+
+  const accessToken = jwt.sign(jwtPayload, config.jwtAccessSecret, {
+    expiresIn: '1d',
+  });
+
   return {
     email: foundUser.email,
+    accessToken,
   };
 };
 
