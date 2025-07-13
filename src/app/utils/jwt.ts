@@ -6,7 +6,7 @@ export const generateJwtToken = (
   expiresIn: string
 ): string => {
   const options: SignOptions = {
-    expiresIn: expiresIn as SignOptions['expiresIn'],
+    expiresIn: expiresIn?.trim() as SignOptions['expiresIn'],
   };
 
   const token: string = jwt.sign(payload, secret, options);

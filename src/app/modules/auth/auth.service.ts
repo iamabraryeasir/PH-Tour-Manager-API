@@ -10,8 +10,7 @@ import httpStatusCodes from 'http-status-codes';
 import { AppError } from '../../errorHelpers/AppError';
 import { IUser } from '../user/user.interface';
 import { User } from '../user/user.model';
-import config from '../../config';
-import { generateJwtToken } from '../../utils/jwt';
+import { createUserTokens } from '../../utils/userTokens';
 
 /**
  * Credentials login service logic
@@ -40,23 +39,17 @@ const credentialsLogin = async (payload: Partial<IUser>) => {
     );
   }
 
-  // generate access token
-  const jwtPayload = {
-    userId: foundUser._id,
-    email: foundUser.email,
-    role: foundUser.role,
-  };
+  // generate tokens
+  const { accessToken, refreshToken } = createUserTokens(foundUser);
 
-  const accessToken = generateJwtToken(
-    jwtPayload,
-    config.jwtAccessSecret,
-    config.jwtAccessExpire
-  );
+  // remove sensitive data
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { password: ps, auths, ...rest } = foundUser.toObject();
 
   return {
-    email: foundUser.email,
-    role: foundUser.role,
+    user: rest,
     accessToken,
+    refreshToken,
   };
 };
 
