@@ -21,5 +21,6 @@ router.post(
   catchAuth(...Object.values(Role)),
   AuthController.getNewAccessToken
 );
+router.post('/logout', AuthController.logOutUser);
 
 export const AuthRoutes = router;
