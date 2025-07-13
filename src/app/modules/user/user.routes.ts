@@ -22,13 +22,16 @@ router.get(
   catchAuth(Role.ADMIN, Role.SUPER_ADMIN),
   UserController.getAllUsers
 );
+
 router.post(
   '/register',
   validateRequest(createUserZodSchema),
   UserController.createUser
 );
-router.put(
-  '/',
+
+router.patch(
+  '/:userId',
+  catchAuth(...Object.values(Role)),
   validateRequest(updateUserZodSchema),
   UserController.updateUser
 );

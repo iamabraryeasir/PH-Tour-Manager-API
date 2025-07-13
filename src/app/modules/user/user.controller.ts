@@ -2,16 +2,19 @@
 /**
  * Node Modules
  */
-import { NextFunction, Request, Response } from 'express';
+import { JwtPayload } from 'jsonwebtoken';
 import httpStatusCodes from 'http-status-codes';
+import { NextFunction, Request, Response } from 'express';
 
 /**
  * Local Modules
  */
+import config from '../../config';
+import { IUser } from './user.interface';
 import { UserServices } from './user.service';
+import { verifyJwtToken } from '../../utils/jwt';
 import { catchAsync } from '../../utils/catchAsync';
 import { sendResponse } from '../../utils/sendResponse';
-import { IUser } from './user.interface';
 
 /**
  * Create user controllers
@@ -52,10 +55,31 @@ const getAllUsers = catchAsync(
  */
 const updateUser = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
+    // userid from params
+    const { userId } = req.params;
+
+    // getting jwt access token from middleware
+    const verifiedToken = req.user;
+
+    // fields to update
+    const payload = req.body;
+
+    // update the user
+    const updatedNewUser = await UserServices.updateUser(
+      userId,
+      payload,
+      verifiedToken
+    );
+
+    // remove sensitive data
+    const { password, auths, isDeleted, ...rest } = updatedNewUser as IUser;
+
     sendResponse(res, {
       statusCode: httpStatusCodes.CREATED,
-      message: 'user updated successfully',
-      data: {},
+      message: 'User updated successfully',
+      data: {
+        ...rest,
+      },
     });
   }
 );

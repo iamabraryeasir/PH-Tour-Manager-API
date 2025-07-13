@@ -55,6 +55,7 @@ const credentialsLogin = async (payload: Partial<IUser>) => {
 
   return {
     email: foundUser.email,
+    role: foundUser.role,
     accessToken,
   };
 };

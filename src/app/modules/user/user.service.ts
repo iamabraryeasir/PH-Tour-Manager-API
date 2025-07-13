@@ -8,9 +8,10 @@ import bcrypt from 'bcryptjs';
  * Local Modules
  */
 import { AppError } from '../../errorHelpers/AppError';
-import { IAuthProvider, IUser } from './user.interface';
+import { IAuthProvider, IUser, Role } from './user.interface';
 import { User } from './user.model';
 import config from '../../config';
+import { JwtPayload } from 'jsonwebtoken';
 
 /**
  * Create new user service logics
@@ -28,7 +29,7 @@ const createUser = async (payload: Partial<IUser>) => {
   // hashing the password
   const hashedPassword = await bcrypt.hash(
     password as string,
-    parseInt(config.bcryptSaltRound)
+    config.bcryptSaltRound
   );
 
   // creating the auth provider for email and pass
@@ -63,4 +64,53 @@ const getAllUsers = async () => {
   };
 };
 
-export const UserServices = { createUser, getAllUsers };
+/**
+ * Update user service
+ */
+const updateUser = async (
+  userId: string,
+  payload: Partial<IUser>,
+  decodedToken: JwtPayload
+) => {
+  // check if user exists with the userId
+  const ifUserExists = await User.findById(userId);
+  if (!ifUserExists) {
+    throw new AppError(httpStatusCodes.NOT_FOUND, 'User not found');
+  }
+
+  // check for role changing
+  if (payload.role) {
+    if (decodedToken.role === Role.USER || decodedToken.role === Role.GUIDE) {
+      throw new AppError(httpStatusCodes.FORBIDDEN, 'You are not authorized');
+    }
+
+    if (payload.role === Role.SUPER_ADMIN && decodedToken.role === Role.ADMIN) {
+      throw new AppError(httpStatusCodes.FORBIDDEN, 'You are not authorized');
+    }
+  }
+
+  // only admin update fields
+  if (payload.isActive || payload.isDeleted || payload.isVerified) {
+    if (decodedToken.role === Role.USER || decodedToken.role === Role.GUIDE) {
+      throw new AppError(httpStatusCodes.FORBIDDEN, 'You are not authorized');
+    }
+  }
+
+  // rehash password on updates
+  if (payload.password) {
+    payload.password = await bcrypt.hash(
+      payload.password,
+      config.bcryptSaltRound
+    );
+  }
+
+  // final update operation in db
+  const newUpdatedUser = await User.findByIdAndUpdate(userId, payload, {
+    new: true,
+    runValidators: true,
+  });
+
+  return newUpdatedUser?.toObject();
+};
+
+export const UserServices = { createUser, getAllUsers, updateUser };

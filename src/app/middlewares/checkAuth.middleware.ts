@@ -20,6 +20,7 @@ export const catchAuth =
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const accessToken = req.headers.authorization;
+
       if (!accessToken) {
         throw new AppError(403, 'No token received');
       }
@@ -32,6 +33,8 @@ export const catchAuth =
       if (!authRoles.includes(verifiedToken.role)) {
         throw new AppError(401, 'You are not permitted to view the route');
       }
+
+      req.user = verifiedToken;
 
       next();
     } catch (error) {
