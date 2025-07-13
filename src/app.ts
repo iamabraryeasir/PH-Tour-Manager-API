@@ -1,9 +1,10 @@
 /**
  * Node Modules
  */
-import express, { Request, Response } from 'express';
 import cors from 'cors';
 import httpStatusCodes from 'http-status-codes';
+import express, { Request, Response } from 'express';
+import cookieParser from 'cookie-parser';
 
 /**
  * Local Modules
@@ -24,6 +25,7 @@ app.use(cors());
  */
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 
 /**
  * Home Route

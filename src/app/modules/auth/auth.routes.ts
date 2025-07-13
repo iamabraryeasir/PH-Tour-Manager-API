@@ -6,7 +6,9 @@ import { Router } from 'express';
 /**
  * Local Module
  */
+import { Role } from '../user/user.interface';
 import { AuthController } from './auth.controller';
+import { catchAuth } from '../../middlewares/checkAuth.middleware';
 
 /**
  * Routes
@@ -14,5 +16,10 @@ import { AuthController } from './auth.controller';
 const router = Router();
 
 router.post('/login', AuthController.credentialsLogin);
+router.post(
+  '/refresh-token',
+  catchAuth(...Object.values(Role)),
+  AuthController.getNewAccessToken
+);
 
 export const AuthRoutes = router;
