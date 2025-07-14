@@ -9,6 +9,8 @@ import { Router } from 'express';
 import { Role } from '../user/user.interface';
 import { AuthController } from './auth.controller';
 import { catchAuth } from '../../middlewares/checkAuth.middleware';
+import { validateRequest } from '../../middlewares/validateRequest.middleware';
+import { changePasswordZodSchema } from './auth.validation';
 
 /**
  * Routes
@@ -25,6 +27,7 @@ router.post(
 router.post(
   '/reset-password',
   catchAuth(...Object.values(Role)),
+  validateRequest(changePasswordZodSchema),
   AuthController.resetPassword
 );
 

@@ -49,7 +49,7 @@ export const updateUserZodSchema = z.object({
     .max(50, { message: 'Name can be maximum 50 characters' })
     .optional(),
   password: z
-    .string({ invalid_type_error: 'Phone number must be string type' })
+    .string({ invalid_type_error: 'Password must be string type' })
     .min(8, { message: 'Password must be at least 8 characters long' })
     .regex(/(?=.*[A-Z])/, {
       message: 'Password must contain at least one uppercase letter',
