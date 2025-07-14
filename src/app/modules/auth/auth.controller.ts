@@ -99,11 +99,8 @@ const resetPassword = catchAsync(
     const oldPassword = req.body.oldPassword;
     const newPassword = req.body.newPassword;
 
-    const passwordResetData = await AuthServices.resetPassword(
-      decodedToken,
-      oldPassword,
-      newPassword
-    );
+    await AuthServices.resetPassword(decodedToken, oldPassword, newPassword);
+
     sendResponse(res, {
       statusCode: httpStatusCodes.OK,
       message: 'Password reset successful',
