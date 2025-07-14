@@ -2,6 +2,7 @@
  * Node Modules
  */
 import { JwtPayload } from 'jsonwebtoken';
+import httpStatusCodes from 'http-status-codes';
 import { NextFunction, Request, Response } from 'express';
 
 /**
@@ -10,7 +11,8 @@ import { NextFunction, Request, Response } from 'express';
 import config from '../config';
 import { verifyJwtToken } from '../utils/jwt';
 import { AppError } from '../errorHelpers/AppError';
-import { Role } from '../modules/user/user.interface';
+import { IsActive, Role } from '../modules/user/user.interface';
+import { User } from '../modules/user/user.model';
 
 /**
  * Main Middleware Logic
@@ -29,6 +31,28 @@ export const catchAuth =
         accessToken,
         config.jwtAccessSecret
       ) as JwtPayload;
+
+      const isUserExists = await User.findOne({
+        email: verifiedToken.email,
+      });
+
+      if (!isUserExists) {
+        throw new AppError(httpStatusCodes.BAD_REQUEST, 'User does not exist');
+      }
+
+      if (
+        isUserExists.isActive === IsActive.BLOCKED ||
+        isUserExists.isActive === IsActive.INACTIVE
+      ) {
+        throw new AppError(
+          httpStatusCodes.BAD_REQUEST,
+          `User is ${isUserExists.isActive}`
+        );
+      }
+
+      if (isUserExists.isDeleted) {
+        throw new AppError(httpStatusCodes.BAD_REQUEST, 'User is deleted');
+      }
 
       if (!authRoles.includes(verifiedToken.role)) {
         throw new AppError(401, 'You are not permitted to view the route');

@@ -16,11 +16,16 @@ import { catchAuth } from '../../middlewares/checkAuth.middleware';
 const router = Router();
 
 router.post('/login', AuthController.credentialsLogin);
+router.post('/logout', AuthController.logOutUser);
 router.post(
   '/refresh-token',
   catchAuth(...Object.values(Role)),
   AuthController.getNewAccessToken
 );
-router.post('/logout', AuthController.logOutUser);
+router.post(
+  '/reset-password',
+  catchAuth(...Object.values(Role)),
+  AuthController.resetPassword
+);
 
 export const AuthRoutes = router;

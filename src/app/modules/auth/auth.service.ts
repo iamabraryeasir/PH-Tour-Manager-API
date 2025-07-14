@@ -1,7 +1,7 @@
 /**
  * Node Modules
  */
-import bcryptjs from 'bcryptjs';
+import bcrypt from 'bcryptjs';
 import httpStatusCodes from 'http-status-codes';
 
 /**
@@ -14,6 +14,8 @@ import {
   createNewAccessTokenWithRefreshToken,
   createUserTokens,
 } from '../../utils/userTokens';
+import { JwtPayload } from 'jsonwebtoken';
+import config from '../../config';
 
 /**
  * Credentials login service logic
@@ -31,7 +33,7 @@ const credentialsLogin = async (payload: Partial<IUser>) => {
   }
 
   // match the password
-  const isPasswordMatched = await bcryptjs.compare(
+  const isPasswordMatched = await bcrypt.compare(
     password as string,
     foundUser.password as string
   );
@@ -56,6 +58,9 @@ const credentialsLogin = async (payload: Partial<IUser>) => {
   };
 };
 
+/**
+ * Create new access token with refresh token service logic
+ */
 const getNewAccessToken = async (refreshToken: string) => {
   const newAccessToken = await createNewAccessTokenWithRefreshToken(
     refreshToken
@@ -64,7 +69,42 @@ const getNewAccessToken = async (refreshToken: string) => {
   return { accessToken: newAccessToken };
 };
 
+/**
+ * Reset password service logic
+ */
+const resetPassword = async (
+  decodedToken: JwtPayload,
+  oldPassword: string,
+  newPassword: string
+) => {
+  const userFromDB = await User.findById(decodedToken.userId);
+
+  const verifyOldPassword = await bcrypt.compare(
+    oldPassword,
+    userFromDB?.password as string
+  );
+
+  if (!verifyOldPassword) {
+    throw new AppError(
+      httpStatusCodes.UNAUTHORIZED,
+      "Previous password doesn't match"
+    );
+  }
+
+  const newPasswordHash = await bcrypt.hash(
+    newPassword,
+    config.bcryptSaltRound
+  );
+
+  await User.findByIdAndUpdate(
+    decodedToken.userId,
+    { password: newPasswordHash },
+    { new: true }
+  );
+};
+
 export const AuthServices = {
   credentialsLogin,
   getNewAccessToken,
+  resetPassword,
 };
