@@ -116,6 +116,9 @@ const resetPassword = catchAsync(
   }
 );
 
+/**
+ * Google OAuth Logic Controller
+ */
 const googleCallbackController = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     let redirectTo = req.query.state ? (req.query.state as string) : '';
