@@ -24,8 +24,8 @@ const credentialsLogin = async (payload: Partial<IUser>) => {
   const { email, password } = payload;
 
   // check if user exists
-  const foundUser = await User.findOne({ email });
-  if (!foundUser) {
+  const ifUserExists = await User.findOne({ email });
+  if (!ifUserExists) {
     throw new AppError(
       httpStatusCodes.BAD_REQUEST,
       'Invalid email or password'
@@ -35,7 +35,7 @@ const credentialsLogin = async (payload: Partial<IUser>) => {
   // match the password
   const isPasswordMatched = await bcrypt.compare(
     password as string,
-    foundUser.password as string
+    ifUserExists.password as string
   );
   if (!isPasswordMatched) {
     throw new AppError(
@@ -45,11 +45,11 @@ const credentialsLogin = async (payload: Partial<IUser>) => {
   }
 
   // generate tokens
-  const { accessToken, refreshToken } = createUserTokens(foundUser);
+  const { accessToken, refreshToken } = createUserTokens(ifUserExists);
 
   // remove sensitive data
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { password: ps, auths, ...rest } = foundUser.toObject();
+  const { password: ps, auths, ...rest } = ifUserExists.toObject();
 
   return {
     user: rest,

@@ -16,26 +16,44 @@ import { setAuthCookie } from '../../utils/setCookie';
 import { createUserTokens } from '../../utils/userTokens';
 import config from '../../config';
 import { JwtPayload } from 'jsonwebtoken';
+import passport from 'passport';
 
 /**
  * Credentials login controller logic
  */
 const credentialsLogin = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const loginInfo = await AuthServices.credentialsLogin(req.body);
+    // const loginInfo = await AuthServices.credentialsLogin(req.body);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    passport.authenticate('local', async (error: any, user: any, info: any) => {
+      if (error) {
+        return next(new AppError(httpStatusCodes.UNAUTHORIZED, error));
+      }
 
-    setAuthCookie(res, {
-      accessToken: loginInfo.accessToken,
-      refreshToken: loginInfo.refreshToken,
-    });
+      if (!user) {
+        return next(new AppError(httpStatusCodes.UNAUTHORIZED, info.message));
+      }
 
-    sendResponse(res, {
-      statusCode: httpStatusCodes.OK,
-      message: 'User logged in successfully',
-      data: {
-        ...loginInfo,
-      },
-    });
+      const userTokens = createUserTokens(user);
+
+      setAuthCookie(res, {
+        accessToken: userTokens.accessToken,
+        refreshToken: userTokens.refreshToken,
+      });
+
+      // remove sensitive data
+      const { password: ps, auths, ...rest } = user.toObject();
+
+      sendResponse(res, {
+        statusCode: httpStatusCodes.OK,
+        message: 'User logged in successfully',
+        data: {
+          accessToken: userTokens.accessToken,
+          refreshToken: userTokens.refreshToken,
+          user: rest,
+        },
+      });
+    })(req, res, next);
   }
 );
 
