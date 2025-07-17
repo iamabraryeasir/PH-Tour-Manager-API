@@ -8,55 +8,51 @@ import httpStatusCodes from 'http-status-codes';
  * Local Modules
  */
 import { AppError } from '../../errorHelpers/AppError';
-import { IUser } from '../user/user.interface';
 import { User } from '../user/user.model';
-import {
-  createNewAccessTokenWithRefreshToken,
-  createUserTokens,
-} from '../../utils/userTokens';
+import { createNewAccessTokenWithRefreshToken } from '../../utils/userTokens';
 import { JwtPayload } from 'jsonwebtoken';
 import config from '../../config';
 
 /**
  * Credentials login service logic
  */
-const credentialsLogin = async (payload: Partial<IUser>) => {
-  const { email, password } = payload;
+// const credentialsLogin = async (payload: Partial<IUser>) => {
+//   const { email, password } = payload;
 
-  // check if user exists
-  const ifUserExists = await User.findOne({ email });
-  if (!ifUserExists) {
-    throw new AppError(
-      httpStatusCodes.BAD_REQUEST,
-      'Invalid email or password'
-    );
-  }
+//   // check if user exists
+//   const ifUserExists = await User.findOne({ email });
+//   if (!ifUserExists) {
+//     throw new AppError(
+//       httpStatusCodes.BAD_REQUEST,
+//       'Invalid email or password'
+//     );
+//   }
 
-  // match the password
-  const isPasswordMatched = await bcrypt.compare(
-    password as string,
-    ifUserExists.password as string
-  );
-  if (!isPasswordMatched) {
-    throw new AppError(
-      httpStatusCodes.BAD_REQUEST,
-      'Invalid email or password'
-    );
-  }
+//   // match the password
+//   const isPasswordMatched = await bcrypt.compare(
+//     password as string,
+//     ifUserExists.password as string
+//   );
+//   if (!isPasswordMatched) {
+//     throw new AppError(
+//       httpStatusCodes.BAD_REQUEST,
+//       'Invalid email or password'
+//     );
+//   }
 
-  // generate tokens
-  const { accessToken, refreshToken } = createUserTokens(ifUserExists);
+//   // generate tokens
+//   const { accessToken, refreshToken } = createUserTokens(ifUserExists);
 
-  // remove sensitive data
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { password: ps, auths, ...rest } = ifUserExists.toObject();
+//   // remove sensitive data
+//   // eslint-disable-next-line @typescript-eslint/no-unused-vars
+//   const { password: ps, auths, ...rest } = ifUserExists.toObject();
 
-  return {
-    user: rest,
-    accessToken,
-    refreshToken,
-  };
-};
+//   return {
+//     user: rest,
+//     accessToken,
+//     refreshToken,
+//   };
+// };
 
 /**
  * Create new access token with refresh token service logic
@@ -104,7 +100,7 @@ const resetPassword = async (
 };
 
 export const AuthServices = {
-  credentialsLogin,
+  // credentialsLogin,
   getNewAccessToken,
   resetPassword,
 };
