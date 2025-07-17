@@ -83,7 +83,8 @@ export const globalErrorHandler = (
   res.status(statusCode).json({
     success: false,
     message,
-    error: errorSources,
+    errorSources,
+    error: config.nodeEnv === 'development' ? error : null,
     stack: config.nodeEnv === 'development' ? error.stack : null,
   });
 };
