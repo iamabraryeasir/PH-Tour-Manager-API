@@ -6,6 +6,6 @@ export const handleDuplicateError = (error: any): IGenericErrorResponse => {
 
     return {
         statusCode: 400,
-        message: `${matchedArray[0]} already exists`,
+        message: `${matchedArray?.[0]} already exists`,
     };
 };
