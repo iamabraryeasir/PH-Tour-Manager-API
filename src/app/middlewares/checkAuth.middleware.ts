@@ -17,51 +17,60 @@ import { User } from '../modules/user/user.model';
 /**
  * Main Middleware Logic
  */
-export const catchAuth =
-  (...authRoles: Role[]) =>
-  async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const accessToken = req.headers.authorization;
+export const checkAuth =
+    (...authRoles: Role[]) =>
+    async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const accessToken = req.headers.authorization;
 
-      if (!accessToken) {
-        throw new AppError(403, 'No token received');
-      }
+            if (!accessToken) {
+                throw new AppError(403, 'No token received');
+            }
 
-      const verifiedToken = verifyJwtToken(
-        accessToken,
-        config.jwtAccessSecret
-      ) as JwtPayload;
+            const verifiedToken = verifyJwtToken(
+                accessToken,
+                config.jwtAccessSecret
+            ) as JwtPayload;
 
-      const isUserExists = await User.findOne({
-        email: verifiedToken.email,
-      });
+            const isUserExists = await User.findOne({
+                email: verifiedToken.email,
+            });
 
-      if (!isUserExists) {
-        throw new AppError(httpStatusCodes.BAD_REQUEST, 'User does not exist');
-      }
+            if (!isUserExists) {
+                throw new AppError(
+                    httpStatusCodes.BAD_REQUEST,
+                    'User does not exist'
+                );
+            }
 
-      if (
-        isUserExists.isActive === IsActive.BLOCKED ||
-        isUserExists.isActive === IsActive.INACTIVE
-      ) {
-        throw new AppError(
-          httpStatusCodes.BAD_REQUEST,
-          `User is ${isUserExists.isActive}`
-        );
-      }
+            if (
+                isUserExists.isActive === IsActive.BLOCKED ||
+                isUserExists.isActive === IsActive.INACTIVE
+            ) {
+                throw new AppError(
+                    httpStatusCodes.BAD_REQUEST,
+                    `User is ${isUserExists.isActive}`
+                );
+            }
 
-      if (isUserExists.isDeleted) {
-        throw new AppError(httpStatusCodes.BAD_REQUEST, 'User is deleted');
-      }
+            if (isUserExists.isDeleted) {
+                throw new AppError(
+                    httpStatusCodes.BAD_REQUEST,
+                    'User is deleted'
+                );
+            }
 
-      if (!authRoles.includes(verifiedToken.role)) {
-        throw new AppError(401, 'You are not permitted to view the route');
-      }
+            if (!authRoles.includes(verifiedToken.role)) {
+                throw new AppError(
+                    401,
+                    'You are not permitted to view the route'
+                );
+            }
 
-      req.user = verifiedToken;
+            req.user = verifiedToken;
 
-      next();
-    } catch (error) {
-      next(error);
-    }
-  };
+            next();
+        } catch (error) {
+            next(error);
+        }
+    };

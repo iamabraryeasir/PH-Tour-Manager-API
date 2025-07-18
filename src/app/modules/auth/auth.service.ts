@@ -58,49 +58,49 @@ import config from '../../config';
  * Create new access token with refresh token service logic
  */
 const getNewAccessToken = async (refreshToken: string) => {
-  const newAccessToken = await createNewAccessTokenWithRefreshToken(
-    refreshToken
-  );
+    const newAccessToken = await createNewAccessTokenWithRefreshToken(
+        refreshToken
+    );
 
-  return { accessToken: newAccessToken };
+    return { accessToken: newAccessToken };
 };
 
 /**
  * Reset password service logic
  */
 const resetPassword = async (
-  decodedToken: JwtPayload,
-  oldPassword: string,
-  newPassword: string
+    decodedToken: JwtPayload,
+    oldPassword: string,
+    newPassword: string
 ) => {
-  const userFromDB = await User.findById(decodedToken.userId);
+    const userFromDB = await User.findById(decodedToken.userId);
 
-  const verifyOldPassword = await bcrypt.compare(
-    oldPassword,
-    userFromDB?.password as string
-  );
-
-  if (!verifyOldPassword) {
-    throw new AppError(
-      httpStatusCodes.UNAUTHORIZED,
-      "Previous password doesn't match"
+    const verifyOldPassword = await bcrypt.compare(
+        oldPassword,
+        userFromDB?.password as string
     );
-  }
 
-  const newPasswordHash = await bcrypt.hash(
-    newPassword,
-    config.bcryptSaltRound
-  );
+    if (!verifyOldPassword) {
+        throw new AppError(
+            httpStatusCodes.UNAUTHORIZED,
+            "Previous password doesn't match"
+        );
+    }
 
-  await User.findByIdAndUpdate(
-    decodedToken.userId,
-    { password: newPasswordHash },
-    { new: true }
-  );
+    const newPasswordHash = await bcrypt.hash(
+        newPassword,
+        config.bcryptSaltRound
+    );
+
+    await User.findByIdAndUpdate(
+        decodedToken.userId,
+        { password: newPasswordHash },
+        { new: true }
+    );
 };
 
 export const AuthServices = {
-  // credentialsLogin,
-  getNewAccessToken,
-  resetPassword,
+    // credentialsLogin,
+    getNewAccessToken,
+    resetPassword,
 };

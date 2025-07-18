@@ -28,11 +28,11 @@ app.use(cors());
  * Express Session
  */
 app.use(
-  expressSession({
-    secret: config.expressSessionSecret,
-    resave: false,
-    saveUninitialized: false,
-  })
+    expressSession({
+        secret: config.expressSessionSecret,
+        resave: false,
+        saveUninitialized: false,
+    })
 );
 
 /**
@@ -52,10 +52,10 @@ app.use(cookieParser());
  * Home Route
  */
 app.get('/', (req: Request, res: Response) => {
-  res.status(httpStatusCodes.OK).json({
-    success: true,
-    message: 'Welcome to PH Tour Management API',
-  });
+    res.status(httpStatusCodes.OK).json({
+        success: true,
+        message: 'Welcome to PH Tour Management API',
+    });
 });
 
 /**

@@ -8,7 +8,7 @@ import { Router } from 'express';
  */
 import { Role } from './user.interface';
 import { UserController } from './user.controller';
-import { catchAuth } from '../../middlewares/checkAuth.middleware';
+import { checkAuth } from '../../middlewares/checkAuth.middleware';
 import { createUserZodSchema, updateUserZodSchema } from './user.validation';
 import { validateRequest } from '../../middlewares/validateRequest.middleware';
 
@@ -19,7 +19,7 @@ const router = Router();
 
 router.get(
   '/all-users',
-  catchAuth(Role.ADMIN, Role.SUPER_ADMIN),
+  checkAuth(Role.ADMIN, Role.SUPER_ADMIN),
   UserController.getAllUsers
 );
 
@@ -31,7 +31,7 @@ router.post(
 
 router.patch(
   '/:userId',
-  catchAuth(...Object.values(Role)),
+  checkAuth(...Object.values(Role)),
   validateRequest(updateUserZodSchema),
   UserController.updateUser
 );
