@@ -9,6 +9,7 @@ import { Router } from 'express';
 import { UserRoutes } from '../modules/user/user.routes';
 import { AuthRoutes } from '../modules/auth/auth.routes';
 import { DivisionRoutes } from '../modules/division/division.routes';
+import { TourRoutes } from '../modules/tour/tour.route';
 
 const router = Router();
 
@@ -27,6 +28,10 @@ const moduleRoutes = [
     {
         path: '/division',
         route: DivisionRoutes,
+    },
+    {
+        path: '/tour',
+        route: TourRoutes,
     },
 ];
 
