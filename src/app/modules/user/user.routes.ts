@@ -18,22 +18,28 @@ import { validateRequest } from '../../middlewares/validateRequest.middleware';
 const router = Router();
 
 router.get(
-  '/all-users',
-  checkAuth(Role.ADMIN, Role.SUPER_ADMIN),
-  UserController.getAllUsers
+    '/all-users',
+    checkAuth(Role.ADMIN, Role.SUPER_ADMIN),
+    UserController.getAllUsers
+);
+
+router.get(
+    '/:id',
+    checkAuth(...Object.values(Role)),
+    UserController.getSingleUser
 );
 
 router.post(
-  '/register',
-  validateRequest(createUserZodSchema),
-  UserController.createUser
+    '/register',
+    validateRequest(createUserZodSchema),
+    UserController.createUser
 );
 
 router.patch(
-  '/:userId',
-  checkAuth(...Object.values(Role)),
-  validateRequest(updateUserZodSchema),
-  UserController.updateUser
+    '/:userId',
+    checkAuth(...Object.values(Role)),
+    validateRequest(updateUserZodSchema),
+    UserController.updateUser
 );
 
 export const UserRoutes = router;
