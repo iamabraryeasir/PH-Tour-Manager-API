@@ -7,7 +7,7 @@ import { User } from '../modules/user/user.model';
 export const seedSuperAdmin = async () => {
     try {
         const isSuperAdminExists = await User.findOne({
-            email: config.superAdminEmail,
+            email: config.SUPER_ADMIN_EMAIL,
             role: Role.SUPER_ADMIN,
         });
 
@@ -19,18 +19,18 @@ export const seedSuperAdmin = async () => {
 
         const authProvider: IAuthProvider = {
             provider: 'credentials',
-            providerId: config.superAdminEmail,
+            providerId: config.SUPER_ADMIN_EMAIL,
         };
 
         const hashedPassword = await bcryptjs.hash(
-            config.superAdminPassword,
-            config.bcryptSaltRound
+            config.SUPER_ADMIN_PASSWORD,
+            config.BCRYPT_SALT_ROUND
         );
 
         await User.create({
             name: 'Super Admin',
             role: Role.SUPER_ADMIN,
-            email: config.superAdminEmail,
+            email: config.SUPER_ADMIN_EMAIL,
             password: hashedPassword,
             auths: [authProvider],
             isVerified: true,

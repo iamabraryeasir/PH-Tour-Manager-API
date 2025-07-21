@@ -55,9 +55,9 @@ passport.use(
 passport.use(
     new GoogleStrategy(
         {
-            clientID: config.googleClientId,
-            clientSecret: config.googleClientSecret,
-            callbackURL: config.googleCallbackUrl,
+            clientID: config.GOOGLE_CLIENT_ID,
+            clientSecret: config.GOOGLE_CLIENT_SECRET,
+            callbackURL: config.GOOGLE_CALLBACK_URL,
         },
         async (
             accessToken: string,

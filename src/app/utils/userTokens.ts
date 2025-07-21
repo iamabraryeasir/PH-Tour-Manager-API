@@ -26,15 +26,15 @@ export const createUserTokens = (user: Partial<IUser>) => {
     // generate access token
     const accessToken = generateJwtToken(
         jwtPayload,
-        config.jwtAccessSecret,
-        config.jwtAccessExpire
+        config.JWT_ACCESS_SECRET,
+        config.JWT_ACCESS_EXPIRE
     );
 
     // generate refresh token
     const refreshToken = generateJwtToken(
         jwtPayload,
-        config.jwtRefreshSecret,
-        config.jwtRefreshExpire
+        config.JWT_REFRESH_SECRET,
+        config.JWT_REFRESH_EXPIRE
     );
 
     return { accessToken, refreshToken };
@@ -48,7 +48,7 @@ export const createNewAccessTokenWithRefreshToken = async (
 ) => {
     const verifiedRefreshToken = verifyJwtToken(
         refreshToken,
-        config.jwtRefreshSecret
+        config.JWT_REFRESH_SECRET
     ) as JwtPayload;
 
     const isUserExists = await User.findOne({
@@ -81,8 +81,8 @@ export const createNewAccessTokenWithRefreshToken = async (
 
     const accessToken = generateJwtToken(
         jwtPayload,
-        config.jwtAccessSecret,
-        config.jwtAccessExpire
+        config.JWT_ACCESS_SECRET,
+        config.JWT_ACCESS_EXPIRE
     );
     return accessToken;
 };

@@ -31,7 +31,7 @@ const createUser = async (payload: Partial<IUser>) => {
     // hashing the password
     const hashedPassword = await bcrypt.hash(
         password as string,
-        config.bcryptSaltRound
+        config.BCRYPT_SALT_ROUND
     );
 
     // creating the auth provider for email and pass
@@ -138,7 +138,7 @@ const updateUser = async (
     if (payload.password) {
         payload.password = await bcrypt.hash(
             payload.password,
-            config.bcryptSaltRound
+            config.BCRYPT_SALT_ROUND
         );
     }
 

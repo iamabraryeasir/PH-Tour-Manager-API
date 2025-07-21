@@ -163,7 +163,7 @@ const googleCallbackController = catchAsync(
 
         setAuthCookie(res, tokenInfo);
 
-        res.redirect(`${config.frontendUrl}/${redirectTo}`);
+        res.redirect(`${config.FRONTEND_URL}/${redirectTo}`);
     }
 );
 

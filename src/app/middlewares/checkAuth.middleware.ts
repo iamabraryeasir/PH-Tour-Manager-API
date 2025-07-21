@@ -29,7 +29,7 @@ export const checkAuth =
 
             const verifiedToken = verifyJwtToken(
                 accessToken,
-                config.jwtAccessSecret
+                config.JWT_ACCESS_SECRET
             ) as JwtPayload;
 
             const isUserExists = await User.findOne({

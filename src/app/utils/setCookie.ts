@@ -22,15 +22,15 @@ export interface AuthTokens {
 export const setAuthCookie = (res: Response, tokenInfo: AuthTokens) => {
     if (tokenInfo.accessToken) {
         res.cookie('accessToken', tokenInfo.accessToken, {
-            httpOnly: config.nodeEnv === 'production',
-            secure: config.nodeEnv === 'production',
+            httpOnly: config.NODE_ENV === 'production',
+            secure: config.NODE_ENV === 'production',
         });
     }
 
     if (tokenInfo.refreshToken) {
         res.cookie('refreshToken', tokenInfo.refreshToken, {
-            httpOnly: config.nodeEnv === 'production',
-            secure: config.nodeEnv === 'production',
+            httpOnly: config.NODE_ENV === 'production',
+            secure: config.NODE_ENV === 'production',
         });
     }
 };

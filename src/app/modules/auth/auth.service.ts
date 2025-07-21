@@ -89,7 +89,7 @@ const resetPassword = async (
 
     const newPasswordHash = await bcrypt.hash(
         newPassword,
-        config.bcryptSaltRound
+        config.BCRYPT_SALT_ROUND
     );
 
     await User.findByIdAndUpdate(

@@ -2,21 +2,25 @@ import 'dotenv/config';
 
 interface EnvConfig {
     // system
-    nodeEnv: 'development' | 'production';
-    port: string;
-    mongoUri: string;
-    jwtAccessSecret: string;
-    jwtAccessExpire: string;
-    jwtRefreshSecret: string;
-    jwtRefreshExpire: string;
-    bcryptSaltRound: number;
-    superAdminEmail: string;
-    superAdminPassword: string;
-    googleClientId: string;
-    googleClientSecret: string;
-    googleCallbackUrl: string;
-    expressSessionSecret: string;
-    frontendUrl: string;
+    NODE_ENV: 'development' | 'production';
+    PORT: string;
+    MONGO_URI: string;
+    JWT_ACCESS_SECRET: string;
+    JWT_ACCESS_EXPIRE: string;
+    JWT_REFRESH_SECRET: string;
+    JWT_REFRESH_EXPIRE: string;
+    BCRYPT_SALT_ROUND: number;
+    SUPER_ADMIN_EMAIL: string;
+    SUPER_ADMIN_PASSWORD: string;
+    GOOGLE_CLIENT_ID: string;
+    GOOGLE_CLIENT_SECRET: string;
+    GOOGLE_CALLBACK_URL: string;
+    EXPRESS_SESSION_SECRET: string;
+    FRONTEND_URL: string;
+    SSL_STORE_ID: string;
+    SSL_STORE_PASS: string;
+    SSL_PAYMENT_API: string;
+    SSL_VALIDATION_API: string;
 }
 
 const loadConfigVariable = (): EnvConfig => {
@@ -46,35 +50,41 @@ const loadConfigVariable = (): EnvConfig => {
 
     return {
         // system
-        nodeEnv: process.env.NODE_ENV as 'development' | 'production',
-        port: process.env.PORT as string,
+        NODE_ENV: process.env.NODE_ENV as 'development' | 'production',
+        PORT: process.env.PORT as string,
 
         // database
-        mongoUri: process.env.MONGO_URI as string,
+        MONGO_URI: process.env.MONGO_URI as string,
 
         // json web token
-        jwtAccessSecret: process.env.JWT_ACCESS_SECRET as string,
-        jwtAccessExpire: process.env.JWT_ACCESS_EXPIRE as string,
-        jwtRefreshSecret: process.env.JWT_REFRESH_SECRET as string,
-        jwtRefreshExpire: process.env.JWT_REFRESH_EXPIRE as string,
+        JWT_ACCESS_SECRET: process.env.JWT_ACCESS_SECRET as string,
+        JWT_ACCESS_EXPIRE: process.env.JWT_ACCESS_EXPIRE as string,
+        JWT_REFRESH_SECRET: process.env.JWT_REFRESH_SECRET as string,
+        JWT_REFRESH_EXPIRE: process.env.JWT_REFRESH_EXPIRE as string,
 
         // bcrypt
-        bcryptSaltRound: parseInt(process.env.BCRYPT_SALT_ROUND as string),
+        BCRYPT_SALT_ROUND: parseInt(process.env.BCRYPT_SALT_ROUND as string),
 
         // admin
-        superAdminEmail: process.env.SUPER_ADMIN_EMAIL as string,
-        superAdminPassword: process.env.SUPER_ADMIN_PASSWORD as string,
+        SUPER_ADMIN_EMAIL: process.env.SUPER_ADMIN_EMAIL as string,
+        SUPER_ADMIN_PASSWORD: process.env.SUPER_ADMIN_PASSWORD as string,
 
         // google
-        googleClientId: process.env.GOOGLE_CLIENT_ID as string,
-        googleClientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
-        googleCallbackUrl: process.env.GOOGLE_CALLBACK_URL as string,
+        GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID as string,
+        GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET as string,
+        GOOGLE_CALLBACK_URL: process.env.GOOGLE_CALLBACK_URL as string,
 
         // express session secret
-        expressSessionSecret: process.env.EXPRESS_SESSION_SECRET as string,
+        EXPRESS_SESSION_SECRET: process.env.EXPRESS_SESSION_SECRET as string,
 
         // frontend url
-        frontendUrl: process.env.FRONTEND_URL as string,
+        FRONTEND_URL: process.env.FRONTEND_URL as string,
+
+        // ssl commerz
+        SSL_STORE_ID: process.env.SSL_STORE_ID as string,
+        SSL_STORE_PASS: process.env.SSL_STORE_PASS as string,
+        SSL_PAYMENT_API: process.env.SSL_PAYMENT_API as string,
+        SSL_VALIDATION_API: process.env.SSL_VALIDATION_API as string,
     };
 };
 

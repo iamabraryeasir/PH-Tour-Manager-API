@@ -19,12 +19,12 @@ let server: Server;
  */
 async function startServer() {
     try {
-        await mongoose.connect(config.mongoUri);
+        await mongoose.connect(config.MONGO_URI);
 
         console.log('Successfully connected to DB');
 
-        server = app.listen(config.port, () => {
-            console.log(`Server is listening at port ${config.port}`);
+        server = app.listen(config.PORT, () => {
+            console.log(`Server is listening at port ${config.PORT}`);
         });
     } catch (error) {
         console.log(error);

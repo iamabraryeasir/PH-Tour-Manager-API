@@ -29,7 +29,7 @@ app.use(cors());
  */
 app.use(
     expressSession({
-        secret: config.expressSessionSecret,
+        secret: config.EXPRESS_SESSION_SECRET,
         resave: false,
         saveUninitialized: false,
     })

@@ -84,7 +84,7 @@ export const globalErrorHandler = (
         success: false,
         message,
         errorSources,
-        error: config.nodeEnv === 'development' ? error : null,
-        stack: config.nodeEnv === 'development' ? error.stack : null,
+        error: config.NODE_ENV === 'development' ? error : null,
+        stack: config.NODE_ENV === 'development' ? error.stack : null,
     });
 };
