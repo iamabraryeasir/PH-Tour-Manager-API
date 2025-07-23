@@ -15,6 +15,8 @@ import { PAYMENT_STATUS } from '../payment/payment.interface';
 import { Tour } from '../tour/tour.model';
 import { SSLService } from '../sslCommerz/sslCommerz.service';
 import { ISSLCommerz } from '../sslCommerz/sslCommerz.interface';
+import { QueryBuilder } from '../../utils/QueryBuilder';
+import { bookingSearchableFields } from '../division/division.constant';
 
 /**
  * Service Logics
@@ -113,20 +115,65 @@ const createBooking = async (payload: Partial<IBooking>, userId: string) => {
     }
 };
 
-const getUserBookings = async () => {
-    return {};
+const getUserBookings = async (userId: string) => {
+    const bookings = await Booking.find({ user: userId })
+        .populate('user', 'name email phone address')
+        .populate('tour', 'title costFrom')
+        .populate('payment');
+    return bookings;
 };
 
-const getBookingById = async () => {
-    return {};
+const getBookingById = async (bookingId: string) => {
+    const booking = await Booking.findById(bookingId)
+        .populate('user', 'name email phone address')
+        .populate('tour', 'title costFrom')
+        .populate('payment');
+    if (!booking) {
+        throw new AppError(httpStatusCodes.NOT_FOUND, 'Booking not found');
+    }
+    return booking;
 };
 
-const getAllBookings = async () => {
-    return {};
+const getAllBookings = async (query: Record<string, string>) => {
+    const queryBuilder = new QueryBuilder(
+        Booking.find()
+            .populate('user', 'name email phone address')
+            .populate('tour', 'title costFrom')
+            .populate('payment'),
+        query
+    );
+
+    const bookingsData = queryBuilder
+        .search(bookingSearchableFields)
+        .filter()
+        .sort()
+        .fields()
+        .paginate();
+
+    const [data, meta] = await Promise.all([
+        bookingsData.build(),
+        queryBuilder.getMeta(),
+    ]);
+    return {
+        data,
+        meta,
+    };
 };
 
-const updateBookingStatus = async () => {
-    return {};
+const updateBookingStatus = async (
+    bookingId: string,
+    status: BOOKING_STATUS
+) => {
+    const booking = await Booking.findById(bookingId);
+
+    if (!booking) {
+        throw new AppError(httpStatusCodes.NOT_FOUND, 'Booking not found');
+    }
+
+    booking.status = status;
+    await booking.save();
+
+    return booking;
 };
 
 export const BookingService = {

@@ -12,6 +12,7 @@ import { NextFunction, Request, Response } from 'express';
 import { catchAsync } from '../../utils/catchAsync';
 import { sendResponse } from '../../utils/sendResponse';
 import { BookingService } from './booking.service';
+import { AppError } from '../../errorHelpers/AppError';
 
 /**
  * Create Booking
@@ -35,11 +36,23 @@ const createBooking = catchAsync(
 );
 
 /**
- * Get All Bookings
+ * Get all bookings
  */
 const getAllBookings = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
-        const bookings = await BookingService.getAllBookings();
+        /*
+         * Query parameters can include:
+         * - search: for searching by status, user, tour, or payment
+         * - filter: for filtering results
+         * - sort: for sorting results
+         * - fields: for selecting specific fields
+         * - page and limit: for pagination
+         */
+
+        const query = req.query;
+        const bookings = await BookingService.getAllBookings(
+            query as Record<string, string>
+        );
 
         sendResponse(res, {
             statusCode: httpStatusCodes.OK,
@@ -54,7 +67,9 @@ const getAllBookings = catchAsync(
  */
 const getUserBookings = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
-        const bookings = await BookingService.getUserBookings();
+        const decodedToken = req.user as JwtPayload;
+        const userId = decodedToken.userId;
+        const bookings = await BookingService.getUserBookings(userId);
 
         sendResponse(res, {
             statusCode: httpStatusCodes.OK,
@@ -69,7 +84,14 @@ const getUserBookings = catchAsync(
  */
 const getSingleBooking = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
-        const booking = await BookingService.getBookingById();
+        const bookingId = req.params.id;
+        if (!bookingId) {
+            throw new AppError(
+                httpStatusCodes.BAD_REQUEST,
+                'Booking ID is required'
+            );
+        }
+        const booking = await BookingService.getBookingById(bookingId);
 
         sendResponse(res, {
             statusCode: httpStatusCodes.OK,
