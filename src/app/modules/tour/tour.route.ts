@@ -9,6 +9,7 @@ import {
 } from './tour.validation';
 import { checkAuth } from '../../middlewares/checkAuth.middleware';
 import { validateRequest } from '../../middlewares/validateRequest.middleware';
+import { multerUpload } from '../../config/multer.config';
 
 const router = express.Router();
 
@@ -45,6 +46,7 @@ router.get('/:slug', TourController.getSingleTour);
 router.post(
     '/create',
     checkAuth(Role.ADMIN, Role.SUPER_ADMIN),
+    multerUpload.array('files'),
     validateRequest(createTourZodSchema),
     TourController.createTour
 );
