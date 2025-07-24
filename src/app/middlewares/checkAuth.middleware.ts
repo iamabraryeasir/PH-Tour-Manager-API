@@ -60,6 +60,13 @@ export const checkAuth =
                 );
             }
 
+            if (!isUserExists.isVerified) {
+                throw new AppError(
+                    httpStatusCodes.BAD_REQUEST,
+                    'User is not verified'
+                );
+            }
+
             if (!authRoles.includes(verifiedToken.role)) {
                 throw new AppError(
                     401,

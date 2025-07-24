@@ -12,6 +12,7 @@ import { checkAuth } from '../../middlewares/checkAuth.middleware';
 import { validateRequest } from '../../middlewares/validateRequest.middleware';
 import { resetPasswordZodSchema } from './auth.validation';
 import passport from 'passport';
+import config from '../../config';
 
 /**
  * Routes
@@ -54,7 +55,9 @@ router.get(
 );
 router.get(
     '/google/callback',
-    passport.authenticate('google', { failureRedirect: '/login' }),
+    passport.authenticate('google', {
+        failureRedirect: `${config.FRONTEND_URL}/login?error=There is some issue with account. Contact with our support team.`,
+    }),
     AuthController.googleCallbackController
 );
 
