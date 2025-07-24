@@ -19,6 +19,12 @@ import { multerUpload } from '../../config/multer.config';
 const router = Router();
 
 router.get(
+    '/me',
+    checkAuth(...Object.values(Role)),
+    UserController.getMe
+);
+
+router.get(
     '/all-users',
     checkAuth(Role.ADMIN, Role.SUPER_ADMIN),
     UserController.getAllUsers

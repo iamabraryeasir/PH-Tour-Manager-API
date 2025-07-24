@@ -15,6 +15,21 @@ import { sendResponse } from '../../utils/sendResponse';
 import { JwtPayload } from 'jsonwebtoken';
 
 /**
+ * Gte Login user data
+ */
+const getMe = catchAsync(
+    async (req: Request, res: Response, next: NextFunction) => {
+        const decodedToken = req.user as JwtPayload;
+        const user = await UserServices.getMe(decodedToken.userId);
+        sendResponse(res, {
+            statusCode: httpStatusCodes.OK,
+            message: 'User data fetched successfully',
+            data: user,
+        });
+    }
+);
+
+/**
  * Create user controllers
  */
 const createUser = catchAsync(
@@ -79,7 +94,7 @@ const updateUser = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
         // userid from params
         const { userId } = req.params;
-        
+
         // getting jwt access token from middleware
         const verifiedToken = req.user as JwtPayload;
 
@@ -113,4 +128,5 @@ export const UserController = {
     getAllUsers,
     getSingleUser,
     updateUser,
+    getMe,
 };

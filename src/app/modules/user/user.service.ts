@@ -156,9 +156,20 @@ const updateUser = async (
     return newUpdatedUser?.toObject();
 };
 
+/**
+ * Get log in user data
+ */
+const getMe = async (userId: string) => {
+    const user = await User.findById(userId).select(
+        '-_id -password -auths -isDeleted -isActive -createdAt -updatedAt'
+    );
+    return user;
+};
+
 export const UserServices = {
     createUser,
     getAllUsers,
     updateUser,
     getSingleUser,
+    getMe,
 };
