@@ -19,16 +19,31 @@ import { handleDuplicateError } from '../errorHelpers/handleDuplicateError';
 import { handleCastError } from '../errorHelpers/handleCastError';
 import { handleZodValidationError } from '../errorHelpers/handleZodValidationError';
 import { handleMongooseValidationError } from '../errorHelpers/handleMongooseValidationError';
+import { deleteImageFromCloudinary } from '../config/cloudinary.config';
 
 /**
  * Middleware Logic
  */
-export const globalErrorHandler = (
+export const globalErrorHandler = async (
     error: any,
     req: Request,
     res: Response,
     next: NextFunction
 ) => {
+    if (req.file) {
+        await deleteImageFromCloudinary(req.file.path);
+    }
+
+    if (req.files && (req.files as Express.Multer.File[]).length > 0) {
+        const imageUrls = (req.files as Express.Multer.File[]).map(
+            (file) => file.path
+        );
+
+        await Promise.all(
+            imageUrls.map((url) => deleteImageFromCloudinary(url))
+        );
+    }
+
     let statusCode = 500;
     let message = error?.message || 'Something went wrong';
     let errorSources: IErrorSources[] = [];
