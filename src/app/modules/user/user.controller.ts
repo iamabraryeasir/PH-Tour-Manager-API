@@ -19,7 +19,12 @@ import { JwtPayload } from 'jsonwebtoken';
  */
 const createUser = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
-        const user = await UserServices.createUser(req.body);
+        const payload: IUser = {
+            ...req.body,
+            picture: req.file?.path,
+        };
+
+        const user = await UserServices.createUser(payload);
 
         sendResponse(res, {
             statusCode: httpStatusCodes.CREATED,
@@ -74,13 +79,15 @@ const updateUser = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
         // userid from params
         const { userId } = req.params;
-
+        
         // getting jwt access token from middleware
         const verifiedToken = req.user as JwtPayload;
 
         // fields to update
-        const payload = req.body;
-
+        const payload: IUser = {
+            ...req.body,
+            picture: req.file?.path,
+        };
         // update the user
         const updatedNewUser = await UserServices.updateUser(
             userId,

@@ -14,6 +14,7 @@ import config from '../../config';
 import { JwtPayload } from 'jsonwebtoken';
 import { QueryBuilder } from '../../utils/QueryBuilder';
 import { userSearchableFields } from './user.constant';
+import { deleteImageFromCloudinary } from '../../config/cloudinary.config';
 
 /**
  * Create new user service logics
@@ -147,6 +148,10 @@ const updateUser = async (
         new: true,
         runValidators: true,
     });
+
+    if (ifUserExists.picture && newUpdatedUser?.picture) {
+        await deleteImageFromCloudinary(ifUserExists.picture);
+    }
 
     return newUpdatedUser?.toObject();
 };
