@@ -10,7 +10,7 @@ import { Role } from '../user/user.interface';
 import { AuthController } from './auth.controller';
 import { checkAuth } from '../../middlewares/checkAuth.middleware';
 import { validateRequest } from '../../middlewares/validateRequest.middleware';
-import { changePasswordZodSchema } from './auth.validation';
+import { resetPasswordZodSchema } from './auth.validation';
 import passport from 'passport';
 
 /**
@@ -28,8 +28,18 @@ router.post(
 router.post(
     '/reset-password',
     checkAuth(...Object.values(Role)),
-    validateRequest(changePasswordZodSchema),
+    validateRequest(resetPasswordZodSchema),
     AuthController.resetPassword
+);
+router.post(
+    '/change-password',
+    checkAuth(...Object.values(Role)),
+    AuthController.changePassword
+);
+router.post(
+    '/set-password',
+    checkAuth(...Object.values(Role)),
+    AuthController.setPassword
 );
 router.get(
     '/google',

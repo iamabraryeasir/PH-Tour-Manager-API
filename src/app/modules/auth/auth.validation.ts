@@ -1,6 +1,6 @@
 import z from 'zod';
 
-export const changePasswordZodSchema = z.object({
+export const resetPasswordZodSchema = z.object({
     oldPassword: z
         .string({ invalid_type_error: 'Old Password must be string type' })
         .min(8, { message: 'Old Password must be at least 8 characters long' })

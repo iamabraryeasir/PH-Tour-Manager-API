@@ -12,6 +12,7 @@ import { User } from '../user/user.model';
 import { createNewAccessTokenWithRefreshToken } from '../../utils/userTokens';
 import { JwtPayload } from 'jsonwebtoken';
 import config from '../../config';
+import { IAuthProvider } from '../user/user.interface';
 
 /**
  * Credentials login service logic
@@ -99,8 +100,81 @@ const resetPassword = async (
     );
 };
 
+/**
+ * Reset password service logic
+ */
+const changePassword = async (
+    decodedToken: JwtPayload,
+    oldPassword: string,
+    newPassword: string
+) => {
+    const userFromDB = await User.findById(decodedToken.userId);
+
+    const verifyOldPassword = await bcrypt.compare(
+        oldPassword,
+        userFromDB?.password as string
+    );
+
+    if (!verifyOldPassword) {
+        throw new AppError(
+            httpStatusCodes.UNAUTHORIZED,
+            "Previous password doesn't match"
+        );
+    }
+
+    const newPasswordHash = await bcrypt.hash(
+        newPassword,
+        config.BCRYPT_SALT_ROUND
+    );
+
+    await User.findByIdAndUpdate(
+        decodedToken.userId,
+        { password: newPasswordHash },
+        { new: true }
+    );
+};
+
+/**
+ * Reset password service logic
+ */
+const setPassword = async (userId: string, plainPassword: string) => {
+    const user = await User.findById(userId);
+    if (!user) {
+        throw new AppError(404, 'User not found');
+    }
+
+    if (
+        user.password &&
+        user.auths.some(
+            (providerObject) => providerObject.provider === 'google'
+        )
+    ) {
+        throw new AppError(
+            httpStatusCodes.BAD_REQUEST,
+            'You have already set your password.'
+        );
+    }
+
+    const hashedPassword = await bcrypt.hash(
+        plainPassword,
+        config.BCRYPT_SALT_ROUND
+    );
+
+    const auths: IAuthProvider[] = [
+        ...user.auths,
+        { provider: 'credentials', providerId: user.email },
+    ];
+
+    user.password = hashedPassword;
+    user.auths = auths;
+
+    await user.save();
+};
+
 export const AuthServices = {
     // credentialsLogin,
     getNewAccessToken,
     resetPassword,
+    changePassword,
+    setPassword,
 };
