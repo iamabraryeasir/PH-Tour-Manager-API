@@ -120,31 +120,7 @@ const logOutUser = catchAsync(
 );
 
 /**
- * Reset Password
- */
-const resetPassword = catchAsync(
-    async (req: Request, res: Response, next: NextFunction) => {
-        const decodedToken = req.user;
-
-        const oldPassword = req.body.oldPassword;
-        const newPassword = req.body.newPassword;
-
-        await AuthServices.resetPassword(
-            decodedToken as JwtPayload,
-            oldPassword,
-            newPassword
-        );
-
-        sendResponse(res, {
-            statusCode: httpStatusCodes.OK,
-            message: 'Password reset successful',
-            data: null,
-        });
-    }
-);
-
-/**
- * Reset Password
+ * Change Password
  */
 const changePassword = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
@@ -168,15 +144,30 @@ const changePassword = catchAsync(
 );
 
 /**
+ * Forget Password
+ */
+const forgotPassword = catchAsync(
+    async (req: Request, res: Response, next: NextFunction) => {
+        const { email } = req.body;
+
+        await AuthServices.forgotPassword(email);
+
+        sendResponse(res, {
+            statusCode: httpStatusCodes.OK,
+            message: 'Email send successfully',
+            data: null,
+        });
+    }
+);
+
+/**
  * Reset Password
  */
-const setPassword = catchAsync(
+const resetPassword = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
         const decodedToken = req.user as JwtPayload;
 
-        const { password } = req.body;
-
-        await AuthServices.setPassword(decodedToken.userId, password);
+        await AuthServices.resetPassword(req.body, decodedToken);
 
         sendResponse(res, {
             statusCode: httpStatusCodes.OK,
@@ -216,6 +207,6 @@ export const AuthController = {
     logOutUser,
     resetPassword,
     changePassword,
-    setPassword,
+    forgotPassword,
     googleCallbackController,
 };

@@ -9,8 +9,6 @@ import { NextFunction, Request, Response, Router } from 'express';
 import { Role } from '../user/user.interface';
 import { AuthController } from './auth.controller';
 import { checkAuth } from '../../middlewares/checkAuth.middleware';
-import { validateRequest } from '../../middlewares/validateRequest.middleware';
-import { resetPasswordZodSchema } from './auth.validation';
 import passport from 'passport';
 import config from '../../config';
 
@@ -20,27 +18,27 @@ import config from '../../config';
 const router = Router();
 
 router.post('/login', AuthController.credentialsLogin);
+
 router.post('/logout', AuthController.logOutUser);
+
 router.post(
     '/refresh-token',
     checkAuth(...Object.values(Role)),
     AuthController.getNewAccessToken
 );
-router.post(
-    '/reset-password',
-    checkAuth(...Object.values(Role)),
-    validateRequest(resetPasswordZodSchema),
-    AuthController.resetPassword
-);
+
 router.post(
     '/change-password',
     checkAuth(...Object.values(Role)),
     AuthController.changePassword
 );
+
+router.post('/forgot-password', AuthController.forgotPassword);
+
 router.post(
-    '/set-password',
+    '/reset-password',
     checkAuth(...Object.values(Role)),
-    AuthController.setPassword
+    AuthController.resetPassword
 );
 router.get(
     '/google',
@@ -53,6 +51,7 @@ router.get(
         })(req, res);
     }
 );
+
 router.get(
     '/google/callback',
     passport.authenticate('google', {

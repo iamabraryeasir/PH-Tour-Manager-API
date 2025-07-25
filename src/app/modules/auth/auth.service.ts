@@ -3,6 +3,8 @@
  */
 import bcrypt from 'bcryptjs';
 import httpStatusCodes from 'http-status-codes';
+import jwt from 'jsonwebtoken';
+import { JwtPayload } from 'jsonwebtoken';
 
 /**
  * Local Modules
@@ -10,9 +12,9 @@ import httpStatusCodes from 'http-status-codes';
 import { AppError } from '../../errorHelpers/AppError';
 import { User } from '../user/user.model';
 import { createNewAccessTokenWithRefreshToken } from '../../utils/userTokens';
-import { JwtPayload } from 'jsonwebtoken';
 import config from '../../config';
-import { IAuthProvider } from '../user/user.interface';
+import { IAuthProvider, IsActive } from '../user/user.interface';
+import { sendEmail } from '../../utils/sendEmail';
 
 /**
  * Credentials login service logic
@@ -64,40 +66,6 @@ const getNewAccessToken = async (refreshToken: string) => {
     );
 
     return { accessToken: newAccessToken };
-};
-
-/**
- * Reset password service logic
- */
-const resetPassword = async (
-    decodedToken: JwtPayload,
-    oldPassword: string,
-    newPassword: string
-) => {
-    const userFromDB = await User.findById(decodedToken.userId);
-
-    const verifyOldPassword = await bcrypt.compare(
-        oldPassword,
-        userFromDB?.password as string
-    );
-
-    if (!verifyOldPassword) {
-        throw new AppError(
-            httpStatusCodes.UNAUTHORIZED,
-            "Previous password doesn't match"
-        );
-    }
-
-    const newPasswordHash = await bcrypt.hash(
-        newPassword,
-        config.BCRYPT_SALT_ROUND
-    );
-
-    await User.findByIdAndUpdate(
-        decodedToken.userId,
-        { password: newPasswordHash },
-        { new: true }
-    );
 };
 
 /**
@@ -171,10 +139,91 @@ const setPassword = async (userId: string, plainPassword: string) => {
     await user.save();
 };
 
+/**
+ * Forgot Password
+ */
+const forgotPassword = async (email: string) => {
+    const isUserExists = await User.findOne({ email });
+
+    if (!isUserExists) {
+        throw new AppError(httpStatusCodes.BAD_REQUEST, 'User does not exist');
+    }
+
+    if (
+        isUserExists.isActive === IsActive.BLOCKED ||
+        isUserExists.isActive === IsActive.INACTIVE
+    ) {
+        throw new AppError(
+            httpStatusCodes.BAD_REQUEST,
+            `User is ${isUserExists.isActive}. Contact with the admins.`
+        );
+    }
+
+    if (isUserExists.isDeleted) {
+        throw new AppError(
+            httpStatusCodes.BAD_REQUEST,
+            'User is deleted. Contact the admins'
+        );
+    }
+
+    if (!isUserExists.isVerified) {
+        throw new AppError(httpStatusCodes.BAD_REQUEST, 'User is not verified');
+    }
+
+    const payload = {
+        userId: isUserExists._id,
+        email: isUserExists.email,
+        role: isUserExists.role,
+    };
+
+    const resetPasswordToken = jwt.sign(payload, config.JWT_ACCESS_SECRET, {
+        expiresIn: '10m',
+    });
+
+    const resetUILink = `${config.FRONTEND_URL}/reset-password?id=${isUserExists._id}&token=${resetPasswordToken}`;
+
+    sendEmail({
+        to: isUserExists.email,
+        subject: 'Password reset email.',
+        templateName: 'forgotPassword',
+        templateData: {
+            name: isUserExists.name,
+            resetUILink,
+        },
+    });
+};
+
+/**
+ * Reset password service logic
+ */
+const resetPassword = async (
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    payload: Record<string, any>,
+    decodedToken: JwtPayload
+) => {
+    if (payload.id !== decodedToken.userId) {
+        throw new AppError(401, "You can't reset your password");
+    }
+
+    const isUserExists = await User.findById(decodedToken.userId);
+    if (!isUserExists) {
+        throw new AppError(404, 'No user found with this Id');
+    }
+
+    const hashedPassword = await bcrypt.hash(
+        payload.newPassword,
+        config.BCRYPT_SALT_ROUND
+    );
+
+    isUserExists.password = hashedPassword;
+    await isUserExists.save();
+};
+
 export const AuthServices = {
     // credentialsLogin,
     getNewAccessToken,
-    resetPassword,
     changePassword,
     setPassword,
+    resetPassword,
+    forgotPassword,
 };
