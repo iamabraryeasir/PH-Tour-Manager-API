@@ -24,6 +24,7 @@ export const setAuthCookie = (res: Response, tokenInfo: AuthTokens) => {
         res.cookie('accessToken', tokenInfo.accessToken, {
             httpOnly: config.NODE_ENV === 'production',
             secure: config.NODE_ENV === 'production',
+            sameSite: 'none',
         });
     }
 
@@ -31,6 +32,7 @@ export const setAuthCookie = (res: Response, tokenInfo: AuthTokens) => {
         res.cookie('refreshToken', tokenInfo.refreshToken, {
             httpOnly: config.NODE_ENV === 'production',
             secure: config.NODE_ENV === 'production',
+            sameSite: 'none',
         });
     }
 };

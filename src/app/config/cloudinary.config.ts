@@ -1,5 +1,7 @@
-import { v2 as cloudinary } from 'cloudinary';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { v2 as cloudinary, UploadApiResponse } from 'cloudinary';
 import config from '.';
+import stream from 'stream';
 import { AppError } from '../errorHelpers/AppError';
 
 cloudinary.config({
@@ -7,6 +9,38 @@ cloudinary.config({
     api_key: config.CLOUDINARY.CLOUDINARY_API_KEY,
     api_secret: config.CLOUDINARY.CLOUDINARY_API_SECRET,
 });
+
+export const uploadBufferToCloudinary = async (
+    buffer: Buffer,
+    fileName: string
+): Promise<UploadApiResponse | undefined> => {
+    try {
+        return new Promise((resolve, reject) => {
+            const public_id = `pdf/${fileName}-${Date.now()}`;
+
+            const bufferStream = new stream.PassThrough();
+            bufferStream.end(buffer);
+
+            cloudinary.uploader
+                .upload_stream(
+                    {
+                        resource_type: 'auto',
+                        public_id: public_id,
+                        folder: 'pdf',
+                    },
+                    (error, result) => {
+                        if (error) {
+                            return reject(error);
+                        }
+                        resolve(result);
+                    }
+                )
+                .end(buffer);
+        });
+    } catch (error: any) {
+        throw new AppError(401, `Error uploading file ${error.message}`);
+    }
+};
 
 export const deleteImageFromCloudinary = async (imageUrl: string) => {
     try {
@@ -18,7 +52,6 @@ export const deleteImageFromCloudinary = async (imageUrl: string) => {
             const publicId = match[1];
             await cloudinary.uploader.destroy(publicId);
         }
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
         throw new AppError(
             401,

@@ -1,8 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import axios from 'axios';
 import httpStatusCodes from 'http-status-codes';
 import config from '../../config';
 import { ISSLCommerz } from './sslCommerz.interface';
 import { AppError } from '../../errorHelpers/AppError';
+import { Payment } from '../payment/payment.model';
 
 const sslPaymentInit = async (payload: ISSLCommerz) => {
     try {
@@ -15,6 +17,7 @@ const sslPaymentInit = async (payload: ISSLCommerz) => {
             success_url: `${config.SSL.SSL_SUCCESS_BACKEND_URL}?transactionId=${payload.transactionId}&amount=${payload.amount}&status=success`,
             fail_url: `${config.SSL.SSL_FAIL_BACKEND_URL}?transactionId=${payload.transactionId}&amount=${payload.amount}&status=fail`,
             cancel_url: `${config.SSL.SSL_CANCEL_BACKEND_URL}?transactionId=${payload.transactionId}&amount=${payload.amount}&status=cancel`,
+            ipn_url: config.SSL.SSL_IPN_URL,
             shipping_method: 'N/A',
             product_name: 'Tour',
             product_category: 'Service',
@@ -48,12 +51,29 @@ const sslPaymentInit = async (payload: ISSLCommerz) => {
         });
 
         return response.data;
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
         throw new AppError(httpStatusCodes.BAD_REQUEST, error.message);
     }
 };
 
+const validatePayment = async (payload: any) => {
+    try {
+        const response = await axios({
+            method: 'GET',
+            url: `${config.SSL.SSL_VALIDATION_API}?val_id=${payload.val_id}&store_id=${config.SSL.SSL_STORE_ID}&store_passwd=${config.SSL.SSL_STORE_PASS}`,
+        });
+
+        await Payment.updateOne(
+            { transactionId: payload.tran_id },
+            { paymentGatewayData: response.data },
+            { runValidators: true }
+        );
+    } catch (error: any) {
+        throw new AppError(401, `Payment Validation Error, ${error.message}`);
+    }
+};
+
 export const SSLService = {
     sslPaymentInit,
+    validatePayment,
 };

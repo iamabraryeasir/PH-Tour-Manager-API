@@ -22,7 +22,13 @@ const app = express();
 /**
  * CORS Setup
  */
-app.use(cors());
+app.set('trust proxy', 1);
+app.use(
+    cors({
+        origin: config.FRONTEND_URL,
+        credentials: true,
+    })
+);
 
 /**
  * Express Session

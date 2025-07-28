@@ -7,6 +7,10 @@ import { PAYMENT_STATUS } from './payment.interface';
 import { Payment } from './payment.model';
 import { SSLService } from '../sslCommerz/sslCommerz.service';
 import { ISSLCommerz } from '../sslCommerz/sslCommerz.interface';
+import { generatePdfInvoice, IInvoiceData } from '../../utils/invoice';
+import { ITour } from '../tour/tour.interface';
+import { IUser } from '../user/user.interface';
+import { sendEmail } from '../../utils/sendEmail';
 
 const initPayment = async (bookingId: string) => {
     const payment = await Payment.findOne({ booking: bookingId });
@@ -53,16 +57,57 @@ const successPayment = async (query: Record<string, string>) => {
             }
         );
 
-        await Booking.findByIdAndUpdate(
+        if (!updatedPayment) {
+            throw new AppError(401, 'Payment not found');
+        }
+
+        const updatedBooking = await Booking.findByIdAndUpdate(
             updatedPayment?.booking,
             {
                 status: BOOKING_STATUS.COMPLETE,
             },
             {
+                new: true,
                 runValidators: true,
                 session,
             }
-        );
+        )
+            .populate('tour', 'title')
+            .populate('user', 'name email');
+
+        if (!updatedBooking) {
+            throw new AppError(401, 'Booking not found');
+        }
+
+        const invoiceData: IInvoiceData = {
+            bookingDate: updatedBooking?.createdAt as Date,
+            guestCount: updatedBooking?.guestCount,
+            totalAmount: updatedPayment?.amount,
+            tourTitle: (updatedBooking?.tour as unknown as ITour).title,
+            transactionId: updatedPayment?.transactionId,
+            userName: (updatedBooking.user as unknown as IUser).name,
+        };
+
+        const pdfBuffer = await generatePdfInvoice(invoiceData);
+
+        await sendEmail({
+            to: (updatedBooking.user as unknown as IUser).email,
+            subject: 'Your tour booking invoice',
+            templateName: 'invoice',
+            templateData: {
+                paymentId: updatedPayment.transactionId,
+                payedAmount: updatedPayment.amount,
+                pdfLink: 'https://youtube.com',
+            },
+            attachments: [
+                {
+                    filename: 'invoice.pdf',
+                    content: pdfBuffer,
+                    contentType: 'application/pdf',
+                },
+            ],
+        });
+
         await session.commitTransaction();
         session.endSession();
         return { success: true, message: 'Payment Completed Successfully' };
@@ -145,9 +190,24 @@ const cancelPayment = async (query: Record<string, string>) => {
     }
 };
 
+const getInvoiceDownloadUrl = async (paymentId: string) => {
+    const payment = await Payment.findById(paymentId).select('invoiceUrl');
+
+    if (!payment) {
+        throw new AppError(401, 'Payment not found');
+    }
+
+    if (!payment.invoiceUrl) {
+        throw new AppError(401, 'No invoice found');
+    }
+
+    return payment.invoiceUrl;
+};
+
 export const PaymentService = {
     successPayment,
     failPayment,
     cancelPayment,
     initPayment,
+    getInvoiceDownloadUrl,
 };
