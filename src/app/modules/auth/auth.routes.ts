@@ -21,11 +21,7 @@ router.post('/login', AuthController.credentialsLogin);
 
 router.post('/logout', AuthController.logOutUser);
 
-router.post(
-    '/refresh-token',
-    checkAuth(...Object.values(Role)),
-    AuthController.getNewAccessToken
-);
+router.post('/refresh-token', AuthController.getNewAccessToken);
 
 router.post(
     '/change-password',
